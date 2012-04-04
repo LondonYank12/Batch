@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ======================
+    Explain build file
+  ======================
+-->
+
+<project name="Explain" default="make_tar" basedir=".">
+
+	<!-- property file="${user.home}/override.properties"/ -->
+	<property environment="env"/>
+	
+	<property name="project.vob.dir"	value="${env.VOB_DIR}"/>
+	<property name="project.dist.dir"	value="explain_dist"/>
+	<property name="project.install.dir"	value="explain_temp"/>
+	<property name="project.dest.file"	value="explain.tar"/>
+	
+	<property name="project.src.dir"	value="${project.vob.dir}/batch/src"/>
+	<property name="project.build.dir"	value="${project.vob.dir}/batch/kpf"/>
+	
+	<property name="javac.debug"		value="true"/>
+	<property name="javac.optimize"		value="false"/>
+	<property name="javac.deprecation"	value="false"/>
+
+<!-- ========================================================================== -->
+	
+	<target name="init" description="Performs basic initialisation">
+		<echo>Initialise...</echo>
+		<delete dir="${project.dist.dir}"/>
+		<delete dir="${project.install.dir}"/>
+		<mkdir dir="${project.dist.dir}"/>
+		<mkdir dir="${project.install.dir}"/>
+	</target>
+	
+	<!-- ####################################### -->
+	<!-- # Need to complete the compile target # -->
+	<!-- ####################################### -->
+
+	<target name="compile" description="Compiles the Java source for Explain">
+		<javac	destdir="${project.build.dir}" verbose="false"
+			excludesfile="${project.vob.dir}/batch/doghouse"
+			debug="${javac.debug}"
+			optimize="${javac.optimize}"
+			deprecation="${javac.deprecation}">
+			<!--classpath refid="global.class.path"/-->
+			<src path="${project.src.dir}" />
+		</javac>
+	</target>
+	
+	<target name="make_tar" description="Creates a tar file ready for distribution" depends="init">
+		<echo>Extracting files from ClearCase ${project.vob.dir}/batch for further processing</echo>
+		<tar tarfile="${project.dist.dir}/${project.dest.file}"
+			basedir="${project.vob.dir}/batch"
+			excludes="bin/attic/**, conf/attic/**, conf/wcp/**, perlib/attic/**, autosys/attic/**, java/**, src/**, build.ksh, build.xml, doghouse, make_tar.ksh, **.keep, **.contrib **.mkelem"
+			includes="3rdparty/openadaptor/1_4_0/classes/**, autosys/**, bin/**, classes/**, conf/**, data/**, logs/**, perlib/**, sbin/**">
+		</tar>
+	</target>
+	
+	<target name="extract_tar" description="untar's the tar for processing">
+
+		<untar src="${project.dist.dir}/${project.dest.file}"
+			dest="${project.install.dir}">
+		</untar>
+	</target>
+	
+	<target name="set_perms" description="Make sure permissions are correct on all files">
+		
+		<echo>Setting permissions on all files to read_only for owner, group and world.</echo>
+		<chmod perm="444">
+			<fileset dir="${project.install.dir}">
+				<exclude name="**/bin/**"/>
+				<exclude name="**/sbin/**"/>
+			</fileset>
+		</chmod>
+		
+		<echo>Setting permissions on all files in bin to read/execute for owner, group and world.</echo>
+		<chmod dir="${project.install.dir}/bin" perm="555" includes="**/*.sh,**/*.csh,**/*.ksh,**/*.pl"/>
+		<chmod dir="${project.install.dir}/sbin" perm="555" includes="**/*.sh,**/*.csh,**/*.ksh,**/*.pl"/>
+	</target>
+
+	<target name="prd_links">
+                <exec executable="/bin/ln" failonerror="true">
+                        <arg value="-s"/>
+                        <arg value="/sbcimp/dyn/data/gcb/explain/prd"/>
+                        <arg value="${project.install.dir}/data"/>
+                </exec>
+                <exec executable="/bin/ln" failonerror="true">
+                        <arg value="-s"/>
+                        <arg value="/sbcimp/dyn/logfiles/gcb/explain/prd"/>
+                        <arg value="${project.install.dir}/logs"/>
+                </exec>
+	</target>
+
+	<target name="_make_tar" description="tar the processed directory tree">
+		<delete dir="${project.dist.dir}/${project.dest.file}"/>
+
+		<exec executable="${basedir}/make_tar.ksh" >
+			<arg value="${basedir}/${project.dist.dir}"/>
+			<arg value="${project.dest.file}"/>
+			<arg value="${basedir}/${project.install.dir}"/>
+		</exec>
+		
+		
+		<delete dir="${project.install.dir}"/>
+
+		<echo>Pls. deploy the following processed tar file: ${project.dist.dir}/${project.dest.file}</echo>
+		
+	</target>
+	
+	<target name="dist" description="Deploys to dev environment" depends="make_tar">
+		<antcall target="extract_tar"/>
+		<antcall target="set_perms"/>
+		<antcall target="prd_links"/>
+		<antcall target="_make_tar"/>
+	</target>	
+
+</project>

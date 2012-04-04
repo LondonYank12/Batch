@@ -1,0 +1,9 @@
+@@banner
+@@initorasga
+@@archlogmode
+@@archtrcdest
+@@controlfiles
+@@redofiles
+@@rollbackseg
+@@tablespaces
+@@datafiles
