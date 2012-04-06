@@ -17,12 +17,12 @@
 	"ORIGINAL_FILE_NAME" VARCHAR2(100), 
 	"CREATION_DATE_TIME" DATE DEFAULT SYSDATE, 
 	"UPDATE_DATE_TIME" DATE
-   ) TABLESPACE "EXPLAIN_01" 
+   ) TABLESPACE "BATCH";
 
-   COMMENT ON COLUMN "TBL_FILE"."RECORDS_IN_FILE" IS 'Total number of records in the file during the last load'
-   COMMENT ON COLUMN "TBL_FILE"."DIGEST" IS 'This is hash total associated with a file. This will give you the current hash total for the last load of this file'
-   COMMENT ON COLUMN "TBL_FILE"."LOAD_ATTEMPTS" IS 'Number of times a file was attempted to load. Default 1'
-   COMMENT ON COLUMN "TBL_FILE"."ORIGINAL_FILE_NAME" IS 'This is the orignial name of the file supplied by vendor'
+   COMMENT ON COLUMN "TBL_FILE"."RECORDS_IN_FILE" IS 'Total number of records in the file during the last load';
+   COMMENT ON COLUMN "TBL_FILE"."DIGEST" IS 'This is hash total associated with a file. This will give you the current hash total for the last load of this file';
+   COMMENT ON COLUMN "TBL_FILE"."LOAD_ATTEMPTS" IS 'Number of times a file was attempted to load. Default 1';
+   COMMENT ON COLUMN "TBL_FILE"."ORIGINAL_FILE_NAME" IS 'This is the orignial name of the file supplied by vendor';
 
 --------------------------------------------------------
 --  DDL for Table TBL_BATCH_PROCESS
@@ -46,4 +46,4 @@
 	"HOSTNAME" VARCHAR2(100), 
 	"AUTOSYS_BOX_NAME" VARCHAR2(30), 
 	"AUTOSYS_JOB_NAME" VARCHAR2(30)
-   ) TABLESPACE "EXPLAIN_01"
+   ) TABLESPACE "BATCH";
